@@ -1,0 +1,137 @@
+<app-titulo [titulo]="titulo"></app-titulo>
+<div class="d-flex">
+  
+  <div class="form-inline mr-auto">
+  </div>    
+</div>
+<table class="table table-striped">
+  <thead class="thead-light">
+    <tr>
+      <th>
+        <button class="btn btn-outline-primary"
+        (click)="alternarArquivo()">
+        <i class="{{mostrarImagem ? 'fa fa-eye-slash': 'fa fa-eye'}}"></i>
+      </button>
+    </th>
+    <th>#</th>
+    <th>Nome</th>
+    <th>Data Criação</th>
+    <th>Servidor</th>
+    <th>CPF</th>
+    <th>Matricula</th>
+    <th>Categoria</th>
+    <th>Setor</th>
+    <th>Opções</th>
+  </tr>
+</thead>
+<tbody *ngIf="tramites && tramites.length">
+  <tr *ngFor="let tramite of tramites">
+    <td>
+      <a *ngIf="mostrarImagem" 
+      href="http://localhost:5000/resources/pdfs/{{tramite.imagemUrl}}?_ts={{dataAtual}}"
+      [style.width.px]="imagemLargura"
+      [style.margin.px]="imagemMargem">
+      <img src="../assets/img/pdf.png" style="width: 25px;"></a>
+    </td>
+    <td>{{tramite.id}}</td>
+    <td>{{tramite.nome}}</td>
+    <td>{{tramite.dataCriacao}}</td>
+    <td>
+      <div *ngIf="!tramite.servidores.length">
+        Não Informado
+      </div>
+      <div *ngIf="tramite.servidores.length">
+        {{tramite.servidores[0].nome}}
+      </div>
+    </td>
+    <td>
+      <div *ngIf="!tramite.servidores.length">
+        Não Informado
+      </div>
+      <div *ngIf="tramite.servidores.length">
+        {{tramite.servidores[0].cpf}}
+      </div>
+    </td>
+    <td>
+      <div *ngIf="!tramite.servidores.length">
+        Não Informado
+      </div>
+      <div *ngIf="tramite.servidores.length">
+        {{tramite.servidores[0].matricula}}
+      </div>
+    </td>
+    <td>
+      <div *ngIf="!tramite.categorias.length">
+        Não Informado
+      </div>
+      <div *ngIf="tramite.categorias.length">
+        {{tramite.categorias[0].nome | uppercase}}
+      </div>
+    </td>
+    <td>
+      <div *ngIf="!tramite.setores.length">
+        Não Informado
+      </div>
+      <div *ngIf="tramite.setores.length">
+        {{tramite.setores[0].nome | uppercase}}
+      </div>
+    </td>
+    <td>
+      <div class="btn-group">
+        <button class="btn btn-sm btn-success" (click)="openModal(template)" tooltip="Tramitar"
+        (click)="editarTramites(tramite, template)">
+        <i class="fa fa-edit"></i>
+      </button>
+    </div>
+  </td>
+</tr>
+</tbody>
+<tfoot *ngIf="!tramites">
+  <tr>
+    <td colspan="4" class="text-center">
+      <h5>Nenhum Benefício Encontrado!</h5>
+    </td>
+  </tr>
+</tfoot>
+</table>
+
+<div bsModal #template="bs-modal" class="modal fade" tabindex="-1"
+role="dialog" aria-labelledby="dialog-sizes-name1">
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4 id="dialog-sizes-name1" class="modal-title pull-left">Large modal</h4>
+      <button type="button" class="close pull-right" (click)="template.hide()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="registerForm">
+        <div formArrayName="setores">
+          <form formGroupName="setores" class="form-group">
+            <div class="row">
+              <div class="form-group col-md-4">
+                <label>Nome</label>
+                <input type="text" class="form-control" formControlName="nome" placeholder="Insira o Nome">
+                <input hidden="true" type="number" #myInput  [(ngModel)]="tramite.id" class="form-control" formControlName="beneficioId" autofocus>
+              </div>
+              <div class="form-group col-md-4">
+                <label>Data Criação</label>
+                <input type="text" bsDatepicker class="form-control" formControlName="dataCriacao" placeholder="01/01/2019">
+              </div>            
+            </div>
+          </form>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer" d-flex>
+      <button class="btn btn-secondary" (click)="template.hide()">
+        Fechar
+      </button>
+      <button class="btn btn-primary ml-auto" [disabled]="!registerForm.valid" (click)="tramitar(template)">
+        Tramitar
+      </button>
+    </div>
+  </div>
+</div>
+</div>

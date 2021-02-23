@@ -1,0 +1,191 @@
+<app-titulo [titulo]="titulo"></app-titulo>
+<div class="d-flex">
+  
+  <div class="form-inline mr-auto">
+    <div class="form-group mb-2">
+      <label class="mr-2">Filtro:</label> <input type="text" class="form-control mr-2" placeholder="buscar"
+      [(ngModel)]="filtroLista">
+    </div>
+  </div>
+  <div>
+    <button class="btn btn-outline-primary" (click)="novoServidor(template)">
+      <i class="fa fa-plus-circle"></i>&nbsp;
+      Novo Servidor</button>
+    </div>
+    
+  </div>
+  <h3>Filtro: {{filtroLista}}</h3>
+  <table class="table table-striped">
+    <thead class="thead-light">
+      <tr>
+        <th>#</th>
+        <th>Nome</th>
+        <th>CPF</th>
+        <th>Matricula</th>
+        <th>Telefone</th>
+        <th>E-mail</th>
+        <th>Data Criação</th>
+        <th>Órgão</th>
+        <th>Opções</th>
+      </tr>
+    </thead>
+    <tbody *ngIf="servidores && servidores.length">
+      <tr *ngFor="let servidor of servidoresFiltrados">
+        <td>{{servidor.id}}</td>
+        <td>{{servidor.nome}}</td>
+        <td>{{servidor.cpf}}</td>
+        <td>{{servidor.matricula}}</td>
+        <td>{{servidor.telefone}}</td>
+        <td>{{servidor.email}}</td>
+        <td>{{servidor.dataCriacao | DateTimeFormatPipe}}</td>
+        <td>
+          <div *ngIf="!servidor.orgaos.length">
+            Não Informado
+          </div>
+          <div *ngIf="servidor.orgaos.length">
+            {{servidor.orgaos[0].nome | uppercase}}
+          </div>
+        </td>
+        <td>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-success" (click)="openModal(template)" tooltip="Editar"
+            (click)="editarServidores(servidor, template)">
+            <i class="fa fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" 
+          tooltip="Excluir" (click)="excluirServidor(servidor, confirm)">
+          <i class="fa fa-eraser"></i>
+        </button>
+      </div>
+    </td>
+  </tr>
+</tbody>
+<tfoot *ngIf="!servidores">
+  <tr>
+    <td colspan="9" class="text-center">
+      <h5>Nenhum Servidor Encontrado!</h5>
+    </td>
+  </tr>
+</tfoot>
+</table>
+
+<div bsModal #template="bs-modal" class="modal fade" tabindex="-1"
+role="dialog" aria-labelledby="dialog-sizes-name1">
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4 id="dialog-sizes-name1" class="modal-title pull-left">Large modal</h4>
+      <button type="button" class="close pull-right" (click)="template.hide()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="registerForm">
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label>Nome: </label>
+            <input type="text" class="form-control" 
+            [ngClass]="{'is-invalid': registerForm.get('nome')!.errors && registerForm.get('nome')!.touched}"
+            formControlName="nome" placeholder="Insira o nome">
+            <div *ngIf="registerForm.get('nome')!.hasError('required') && registerForm.get('nome')!.touched" class="invalid-feedback">
+              Nome é obrigatório.
+            </div>
+            <div *ngIf="registerForm.get('nome')!.hasError('minLength') 
+            && registerForm.get('nome')!.touched" class="invalid-feedback">
+            Nome deve ter no mínimo 4 caracteres
+          </div>
+        </div>
+      </div>  
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label>BeneficioId: </label>
+          <input type="number" class="form-control" formControlName="beneficioId" placeholder="Insira o nome">
+      </div>
+    </div> 
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>CPF: </label>
+          <input type="text" class="form-control" 
+          [ngClass]="{'is-invalid': registerForm.get('cpf')!.errors && registerForm.get('cpf')!.touched}"
+          formControlName="cpf" placeholder="Insira o CPF">
+          <div *ngIf="registerForm.get('cpf')!.hasError('required') && registerForm.get('cpf')!.touched" class="invalid-feedback">
+            CPF é obrigatório.
+          </div>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Matricula: </label>
+          <input type="number" class="form-control" 
+          [ngClass]="{'is-invalid': registerForm.get('matricula')!.errors && registerForm.get('matricula')!.touched}"
+          formControlName="matricula" placeholder="Insira a Matricula">
+          <div *ngIf="registerForm.get('matricula')!.hasError('required') && registerForm.get('matricula')!.touched" class="invalid-feedback">
+            Matricula é obrigatória.
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-3">
+          <label>Telefone: </label>
+          <input type="text" class="form-control" 
+          formControlName="telefone" placeholder="Insira o Telefone">
+        </div>
+        <div class="form-group col-md-6">
+          <label>E-mail: </label>
+          <input type="text" class="form-control" 
+          [ngClass]="{'is-invalid': registerForm.get('email')!.errors && registerForm.get('email')!.touched}"
+          formControlName="email" placeholder="Insira o E-mail">
+          <div *ngIf="registerForm.get('email')!.hasError('required') && registerForm.get('email')!.touched" class="invalid-feedback">
+            Insira um e-mail válido
+          </div>
+        </div>
+        <div class="form-group col-md-3">
+          <label>Data de Criação: </label>
+          <input type="text" class="form-control" 
+          bsDatepicker
+          value="{{dataCriacao | DateTimeFormatPipe}}"
+          [(ngModel)]="dataCriacao"
+          [ngClass]="{'is-invalid': registerForm.get('dataCriacao')!.errors 
+          && registerForm.get('dataCriacao')!.touched}" formControlName="dataCriacao" placeholder="Insira a data de criação">
+          <div class="invalid-feedback">
+            Data de criação é obrigatória.
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer" d-flex>
+    <button class="btn btn-secondary" (click)="template.hide()">
+      Fechar
+    </button>
+    <button class="btn btn-primary ml-auto" [disabled]="!registerForm.valid" (click)="salvarAlteracao(template)">
+      Salvar Alterações
+    </button>
+  </div>
+</div>
+</div>
+</div>
+
+<div bsModal #confirm="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          Deletando Servidor
+        </h4>
+        <button type="button" class="close pull-right" (click)="confirm.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>{{bodyDeletarServidor}}</p>
+      </div>    
+      <div class="modal-footer btn-group d-flex">      
+        <button type="button" class="btn btn-outline-primary" (click)="confirm.hide()">
+          CENCELAR
+        </button>
+        <button type="button" class="btn btn-outline-danger" (click)="confirmeDelete(confirm)">
+          DELETAR
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

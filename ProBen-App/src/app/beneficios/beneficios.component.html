@@ -1,0 +1,214 @@
+<app-titulo [titulo]="titulo"></app-titulo>
+<div class="d-flex">
+  
+  <div class="form-inline mr-auto">
+    <div class="form-group mb-2">
+      <label class="mr-2">Filtro:</label> <input type="text" class="form-control mr-2" placeholder="buscar"
+      [(ngModel)]="filtroLista">
+    </div>
+  </div>
+  <div>
+    <button class="btn btn-outline-primary" (click)="novoBenenfico(template)">
+      <i class="fa fa-plus-circle"></i>&nbsp;
+      Novo Beneficio</button>
+    </div>
+    
+  </div>
+  <h3>Filtro: {{filtroLista}}</h3>
+  <table class="table table-striped">
+    <thead class="thead-light">
+      <tr>
+        <th>
+          <button class="btn btn-outline-primary"
+          (click)="alternarArquivo()">
+          <i class="{{mostrarImagem ? 'fa fa-eye-slash': 'fa fa-eye'}}"></i>
+        </button>
+      </th>
+      <th>#</th>
+      <th>Nome</th>
+      <th>Data Criação</th>
+      <th>Servidor</th>
+      <th>CPF</th>
+      <th>Matricula</th>
+      <th>Categoria</th>
+      <th>Setor</th>
+      <th>Opções</th>
+    </tr>
+  </thead>
+  <tbody *ngIf="beneficios && beneficios.length">
+    <tr *ngFor="let beneficio of beneficiosFiltrados">
+      <td>
+        <a *ngIf="mostrarImagem" 
+        href="http://localhost:5000/resources/pdfs/{{beneficio.imagemUrl}}?_ts={{dataAtual}}"
+        [style.width.px]="imagemLargura"
+        [style.margin.px]="imagemMargem">
+      <img src="../assets/img/pdf.png" style="width: 25px;"></a>
+      </td>
+      <td>{{beneficio.id}}</td>
+      <td>{{beneficio.nome}}</td>
+      <td>{{beneficio.dataCriacao}}</td>
+      <td>
+        <div *ngIf="!beneficio.servidores.length">
+          Não Informado
+        </div>
+        <div *ngIf="beneficio.servidores.length">
+          {{beneficio.servidores[0].nome}}
+        </div>
+      </td>
+      <td>
+        <div *ngIf="!beneficio.servidores.length">
+          Não Informado
+        </div>
+        <div *ngIf="beneficio.servidores.length">
+          {{beneficio.servidores[0].cpf}}
+        </div>
+      </td>
+      <td>
+        <div *ngIf="!beneficio.servidores.length">
+          Não Informado
+        </div>
+        <div *ngIf="beneficio.servidores.length">
+          {{beneficio.servidores[0].matricula}}
+        </div>
+      </td>
+      <td>
+        <div *ngIf="!beneficio.categorias.length">
+          Não Informado
+        </div>
+        <div *ngIf="beneficio.categorias.length">
+          {{beneficio.categorias[0].nome | uppercase}}
+        </div>
+      </td>
+      <td>
+        <div *ngIf="!beneficio.setores.length">
+          Não Informado
+        </div>
+        <div *ngIf="beneficio.setores.length">
+          {{beneficio.setores[0].nome | uppercase}}
+        </div>
+      </td>
+      <td>
+        <div class="btn-group">
+          <button class="btn btn-sm btn-success" (click)="openModal(template)" tooltip="Editar"
+          (click)="editarBeneficio(beneficio, template)">
+          <i class="fa fa-edit"></i>
+        </button>
+        <button class="btn btn-sm btn-danger" 
+        tooltip="Excluir" (click)="excluirBeneficio(beneficio, confirm)">
+        <i class="fa fa-eraser"></i>
+      </button>
+      <a [routerLink]="['/beneficio', beneficio.id, 'edit']" tooltip="Edição Detalhada" class="btn btn-sm btn-warning">
+        <i class="fa fa-edit"></i>
+      </a>
+    </div>
+  </td>
+</tr>
+</tbody>
+<tfoot *ngIf="!beneficios">
+  <tr>
+    <td colspan="7" class="text-center">
+      <h5>Nenhum Benefício Encontrado!</h5>
+    </td>
+  </tr>
+</tfoot>
+</table>
+
+<div bsModal #template="bs-modal" class="modal fade" tabindex="-1"
+role="dialog" aria-labelledby="dialog-sizes-name1">
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4 id="dialog-sizes-name1" class="modal-title pull-left">Large modal</h4>
+      <button type="button" class="close pull-right" (click)="template.hide()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="registerForm">
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label>Nome: </label>
+            <input type="text" class="form-control" 
+            [ngClass]="{'is-invalid': registerForm.get('nome')!.errors && registerForm.get('nome')!.touched}"
+            formControlName="nome" placeholder="Insira o nome">
+            <div *ngIf="registerForm.get('nome')!.hasError('required') && registerForm.get('nome')!.touched" class="invalid-feedback">
+              Nome é obrigatório.
+            </div>
+            <div *ngIf="registerForm.get('nome')!.hasError('minLength') 
+            && registerForm.get('nome')!.touched" class="invalid-feedback">
+            Nome deve ter no mínimo 4 caracteres
+          </div>
+        </div>
+      </div>  
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label>Data de Criação: </label>
+          <input type="text" class="form-control" 
+          bsDatepicker
+          value="{{dataCriacao | DateTimeFormatPipe}}"
+          [(ngModel)]="dataCriacao"
+          [ngClass]="{'is-invalid': registerForm.get('dataCriacao')!.errors 
+          && registerForm.get('dataCriacao')!.touched}" formControlName="dataCriacao" placeholder="Insira a data de criação">
+          <div class="invalid-feedback">
+            Data de criação é obrigatória.
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label>Arquivo</label>
+          <table>
+            <tr>
+              <td>
+                <button class="btn btn-success" (click)="file.click()">
+                  Enviar Arquivo
+                </button>
+                <input type="file" #file 
+                [ngClass]="{'is-invalid': registerForm.get('imagemUrl')!.errors 
+                && registerForm.get('imagemUrl')!.touched}" 
+                (change)="onFileChange($event)" class="form-control is-invalid"
+                formControlName="imagemUrl" placeholder="" style="display: none" accept="application/pdf">
+              </td>
+            </tr>
+          </table>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer" d-flex>
+  <button class="btn btn-secondary" (click)="template.hide()">
+    Fechar
+  </button>
+  <button class="btn btn-primary ml-auto" [disabled]="!registerForm.valid" (click)="salvarAlteracao(template)">
+    Salvar Alterações
+  </button>
+</div>
+</div>
+</div>
+</div>
+
+<div bsModal #confirm="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          Deletando Benefício
+        </h4>
+        <button type="button" class="close pull-right" (click)="confirm.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>{{bodyDeletarBeneficio}}</p>
+      </div>    
+      <div class="modal-footer btn-group d-flex">      
+        <button type="button" class="btn btn-outline-primary" (click)="confirm.hide()">
+          CENCELAR
+        </button>
+        <button type="button" class="btn btn-outline-danger" (click)="confirmeDelete(confirm)">
+          DELETAR
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
